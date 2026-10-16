@@ -23,17 +23,18 @@ npm ci
 `npm ci` installs exactly what `package-lock.json` pins (deployments rebuild the same
 way). Keep the lockfile in sync when you change dependencies: edit `package.json`,
 run `npm install` to regenerate the lockfile, and commit both together — drift fails
-`npm ci`, `npm run lockfile:check`, and CI.
+`npm ci`, `npm run lockfile:check`, `npm run lockfile:reproduce`, and CI.
 
 ## Development checks
 
-Run these locally before opening a PR; CI runs typecheck, build, and the full test
-suite on every push and pull request.
+Run these locally before opening a PR; CI runs the secret scan, the lockfile
+checks, typecheck, build, and the full test suite on every push and pull request.
 
 ```bash
-npm run typecheck   # no-emit TypeScript check (tsc -p tsconfig.json --noEmit)
-npm run build       # compile src/ -> dist/
-npm test            # build, then run every tests/*.test.mjs with node's built-in runner
+npm run scan:secrets  # fail-fast scan for secret-shaped strings (CI runs it first)
+npm run typecheck     # no-emit TypeScript check (tsc -p tsconfig.json --noEmit)
+npm run build         # compile src/ -> dist/
+npm test              # build, then run every tests/*.test.mjs with node's built-in runner
 ```
 
 - `npm test` builds `src/` into `dist/` and then runs all suites
@@ -83,8 +84,8 @@ table.
 
 - Open the PR against `main` and fill in the repository's pull-request template.
 - Describe the *why*, not only the diff: what changed, how it was verified
-  (`npm run typecheck`, `npm test`, and the mock drills when relevant), and any
-  deployment or configuration impact.
+  (`npm run scan:secrets`, `npm run typecheck`, `npm test`, and the mock drills
+  when relevant), and any deployment or configuration impact.
 - Never commit a real `BOT_TOKEN`, chat id, private key, payment proof, or a live
   `data/cursor.json`. Examples use placeholders such as `0000000000:SECRET-TOKEN-DO-NOT-LEAK`.
 - Keep tests and docs consistent with the behavior they describe; a behavior change
